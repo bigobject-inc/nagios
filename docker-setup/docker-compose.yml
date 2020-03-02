@@ -7,6 +7,8 @@ services:
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
             - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
             - $PROJECT_DIR/share/nagios_libexec:/usr/local/nagios/libexec/custom
+        extra_hosts:
+            - "kafka:IPAddress"
         ports:
             - "5407:80"
         environment:
