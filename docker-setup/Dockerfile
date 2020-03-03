@@ -67,6 +67,7 @@ RUN cd /tmp \
     
 # Part 3. Install python environment
 COPY ./requirements.txt /tmp/requirements.txt
+COPY ./python /usr/local/nagios/libexec/python
 RUN pip3 install virtualenv \
     && cd /usr/local/nagios/libexec \
     && virtualenv -p python3 pybox \

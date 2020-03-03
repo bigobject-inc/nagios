@@ -6,13 +6,13 @@ services:
         volumes: 
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
             - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
-            - $PROJECT_DIR/share/nagios_libexec:/usr/local/nagios/libexec/custom
         extra_hosts:
             - "hostName:IPAddress"
         ports:
             - "5407:80"
         environment:
             - NAGIOS_PSWD=nagios
+            - SLACK_URL=https://hooks.slack.com/services/...
         working_dir: /opt
         stdin_open: true
         tty: true
