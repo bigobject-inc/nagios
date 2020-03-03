@@ -1,4 +1,20 @@
+import os
+import dotenv
 import mysql.connector
+
+class Env:
+    __instance = None
+    @classmethod
+    def get(cls, key):
+        cls.__reload()
+        return os.getenv(key)
+    
+    @classmethod
+    def __reload(cls):
+        if cls.__instance is None:
+            dotenv.load_dotenv('/opt/.env')
+            cls.__instance = True
+        return None
 
 class BigObject:
     __name = 'default'

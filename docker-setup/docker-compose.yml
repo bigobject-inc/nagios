@@ -4,6 +4,7 @@ services:
         image: bigobject/watch:$VERSION
         container_name: bo_watch
         volumes: 
+            - $PROJECT_DIR/share/opt:/opt
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
             - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
         extra_hosts:
@@ -12,7 +13,6 @@ services:
             - "5407:80"
         environment:
             - NAGIOS_PSWD=nagios
-            - SLACK_URL=https://hooks.slack.com/services/...
         working_dir: /opt
         stdin_open: true
         tty: true

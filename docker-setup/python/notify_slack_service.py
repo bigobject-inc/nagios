@@ -1,3 +1,4 @@
+from kit import Env
 import sys
 import logging
 import json
@@ -5,7 +6,7 @@ import os
 import urllib.request
 
 # python notify_slack_service.py "$NOTIFICATIONTYPE$"  "$HOSTNAME$" "$HOSTADDRESS$" "$SERVICEDESC$" "$SERVICESTATE$" "$SERVICEOUTPUT$" "$LONGDATETIME$" 
-SLACK_URL=os.getenv('SLACK_URL')
+SLACK_URL=Env.get('SLACK_URL')
 FOOTER_ICON="https://www.nagios.org/wp-content/uploads/2015/06/favicon.ico"
 
 COLOR = {
