@@ -4,9 +4,11 @@ services:
         image: bigobject/watch:$VERSION
         container_name: bo_watch
         volumes: 
+            - $PROJECT_DIR/share/opt:/opt
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
             - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
-            - $PROJECT_DIR/share/nagios_libexec:/usr/local/nagios/libexec/custom
+        extra_hosts:
+            - "hostName:IPAddress"
         ports:
             - "5407:80"
         environment:
@@ -15,3 +17,4 @@ services:
         stdin_open: true
         tty: true
         command: bash
+        restart: unless-stopped

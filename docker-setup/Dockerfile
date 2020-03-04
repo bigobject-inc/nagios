@@ -12,8 +12,9 @@ RUN sed -i s/http/ftp/ /etc/apt/sources.list \
     && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-client-dev libgd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmysqlclient-dev libnagios-object-perl libnagios-plugin-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python-pip rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python python3 python3-pip 
         # there are some redundant packages here
     
-# Part 2. Install nagios core 4.4.5
+# Part 2. Install nagios core 4.4.5 / plugin 2.3.1
 RUN cd /tmp \
+    #### core ####
     && wget -O nagioscore.tar.gz https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.5.tar.gz \
     && tar xzf nagioscore.tar.gz \
     && cd /tmp/nagioscore-nagios-4.4.5/ \
@@ -39,7 +40,7 @@ RUN cd /tmp \
     
     # customize on some configuration
     && mv /usr/local/nagios/var/rw /usr/local/nagios/pipe \
-        # socket, cmd pipe
+        # some sockets for nagios
         
     && sed -i s/command_file=/#command_file=/  /usr/local/nagios/etc/nagios.cfg \
     && sed -i s/cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/#cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/ /usr/local/nagios/etc/nagios.cfg \
@@ -52,8 +53,8 @@ RUN cd /tmp \
     && echo "cfg_dir=/usr/local/nagios/etc/custom" >> /usr/local/nagios/etc/nagios.cfg \
     && mkdir -p /usr/local/nagios/etc/custom && chown nagios:nagios /usr/local/nagios/etc/custom \
         # customization on configuration
-        
-# Part 3. install nagios plugin 2.3.1
+    
+    #### plugin ####
     && apt-get install -y autoconf gcc libc6 libmcrypt-dev make libssl-dev wget bc gawk dc build-essential snmp libnet-snmp-perl gettext \
     && cd /tmp \
     && wget --no-check-certificate -O nagios-plugins.tar.gz https://github.com/nagios-plugins/nagios-plugins/archive/release-2.3.1.tar.gz \
@@ -62,10 +63,18 @@ RUN cd /tmp \
     && ./tools/setup \
     && ./configure \
     && make \
-    && make install \
+    && make install
     
-# Part 4. remove cache
-    && apt-get clean \
+# Part 3. Install python environment
+COPY ./requirements.txt /tmp/requirements.txt
+COPY ./python /usr/local/nagios/libexec/python
+RUN pip3 install virtualenv \
+    && cd /usr/local/nagios/libexec \
+    && virtualenv -p python3 pybox \
+    && ./pybox/bin/pip3 install -r /tmp/requirements.txt
+
+# Part 4. Remove cache
+RUN apt-get clean \
     && rm -Rf /var/lib/apt/lists/* \
     && rm -rf /tmp/*
     
