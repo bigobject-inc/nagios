@@ -1,6 +1,10 @@
 import os
 import dotenv
+import json
 import mysql.connector
+
+SSH_DIR="/opt/ssh"
+EXPECT_SSH="/usr/local/nagios/libexec/shell/remote_ssh_cmd.expect"
 
 class Env:
     __instance = None
@@ -15,6 +19,57 @@ class Env:
             dotenv.load_dotenv('/opt/.env')
             cls.__instance = True
         return None
+
+class RemoteCmd:
+    @classmethod
+    def __prepare(cls, host_name, host_address):
+        # read JSON file
+        try:
+            json_file = "{!s}/{!s}.json".format(SSH_DIR,host_name)
+            json_fd = open(json_file, 'r')
+        except Exception as e:
+            raise Exception("JSON file cannot read {!s}, exception {!s}".format(json_file,e))
+            
+        # read data
+        try:
+            data = json.loads(json_fd.read())
+        except Exception as e:
+            raise Exception("JSON parse error, exception {!s}".format(e))
+        
+        ssh_user = data.get('user', '')
+        ssh_pswd = data.get('password', '')
+        ssh_key = data.get('key', '')
+        key_file = "{!s}/{!s}".format(SSH_DIR,ssh_key)
+        
+        if len(ssh_user)==0:
+            raise Exception("ssh login user not found in JSON")
+        if len(ssh_key) and os.path.isfile(key_file) == False:
+            raise Exception("ssh key not found at {!s}".format(key_file))
+        
+        if len(ssh_key) == 0:
+            ssh_cmd = "ssh {!s}@{!s}".format(ssh_user, host_address)
+        else:
+            ssh_cmd = "ssh -i {!s} {!s}@{!s}".format(key_file, ssh_user, host_address)
+        
+        return {
+            'ssh_cmd': ssh_cmd,
+            'ssh_pswd': ssh_pswd,
+        }
+        
+    @classmethod
+    def commit(cls, host_name, host_address, remote_cmd):
+        # prepare
+        params = cls.__prepare(host_name, host_address)
+            # raise error if exception found
+        cmd_fd = os.popen('{!s} "{!s}" "{!s}" "{!s}"'.format(
+            EXPECT_SSH,
+            params['ssh_cmd'],
+            params['ssh_pswd'],
+            remote_cmd
+        ))
+        return cmd_fd.read()
+        
+        
 
 class BigObject:
     __name = 'default'

@@ -9,8 +9,10 @@ RUN sed -i s/http/ftp/ /etc/apt/sources.list \
     && echo postfix postfix/mailname string nagios.example.com | debconf-set-selections \
     && export DEBIAN_FRONTEND="noninteractive" \
     && apt-get update \
-    && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-client-dev libgd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmysqlclient-dev libnagios-object-perl libnagios-plugin-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python-pip rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python python3 python3-pip 
+    && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-client-dev libgd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmysqlclient-dev libnagios-object-perl libnagios-plugin-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python-pip rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python \
         # there are some redundant packages here
+    &&  apt-get install -y python3 python3-pip expect
+        # package for customized monitoring package
     
 # Part 2. Install nagios core 4.4.5 / plugin 2.3.1
 RUN cd /tmp \
@@ -28,6 +30,7 @@ RUN cd /tmp \
     && make all \
     && make install-groups-users \
     && usermod -a -G nagios www-data \
+    && mkdir -p /home/nagios/.ssh && chown -R nagios:nagios /home/nagios \
     
     # install nagios core
     && make install \
@@ -44,7 +47,6 @@ RUN cd /tmp \
         
     && sed -i s/command_file=/#command_file=/  /usr/local/nagios/etc/nagios.cfg \
     && sed -i s/cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/#cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/ /usr/local/nagios/etc/nagios.cfg \
-    # && echo "" > /usr/local/nagios/etc/objects/localhost.cfg \
         # disable some configuration
         
     && echo "# CUSTOMIZATION" >> /usr/local/nagios/etc/nagios.cfg \
@@ -65,7 +67,8 @@ RUN cd /tmp \
     && make \
     && make install
     
-# Part 3. Install python environment
+# Part 3. Setup customized monitor package of shell, python
+COPY ./shell /usr/local/nagios/libexec/shell
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./python /usr/local/nagios/libexec/python
 RUN pip3 install virtualenv \
@@ -79,7 +82,10 @@ RUN apt-get clean \
     && rm -rf /tmp/*
     
 # Part 5. startup script
-ENTRYPOINT service apache2 restart \
+ENTRYPOINT chown -R nagios:nagios /usr/local/nagios/libexec/python \
+    && chown -R nagios:nagios /usr/local/nagios/libexec/shell \
+    && chown -R nagios:nagios /opt/ssh && chmod 0400 /opt/ssh/*.pem  \
+    && service apache2 restart \
     && service nagios restart \
     && htpasswd -cb /usr/local/nagios/etc/htpasswd.users nagiosadmin ${NAGIOS_PSWD:-nagios} \
     && bash

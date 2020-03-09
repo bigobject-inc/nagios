@@ -1,0 +1,19 @@
+#!/usr/bin/expect
+set cmd [lindex $argv 0]
+set ask_pass [lindex $argv 1]
+set remote_cmd [lindex $argv 2]
+
+eval "spawn $cmd $remote_cmd";
+expect {
+    -re ".*Are.*.*yes.*no.*" {
+        # "Are you sure you want to continue connecting (yes/no)"
+        send "yes\r"
+        exp_continue
+    }
+    
+    "password" {
+        send -- "$ask_pass\r"
+        exp_continue
+    }
+    
+}
