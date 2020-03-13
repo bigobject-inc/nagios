@@ -38,7 +38,7 @@ def main():
         sys.exit(NAGIOS_WARNING)
         
     used_pctg = int(used_r[:-1])
-    print("{!s} used {!s}({!s}), alert at {!s}%".format( mnt, used_r, free, alert_pctg ))
+    print("{!s} used {!s}({!s}), alert if >= {!s}%".format( mnt, used_r, free, alert_pctg ))
     if used_pctg >= alert_pctg:
         sys.exit(NAGIOS_WARNING)
         
