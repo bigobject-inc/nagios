@@ -1,4 +1,3 @@
-# pip install kafka-python
 from kafka import KafkaProducer, KafkaConsumer
 import sys
 
