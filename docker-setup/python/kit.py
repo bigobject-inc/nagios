@@ -2,6 +2,7 @@ import os
 import dotenv
 import json
 import mysql.connector
+import shellescape
 
 SSH_DIR="/opt/ssh"
 EXPECT_SSH="/usr/local/nagios/libexec/shell/remote_ssh_cmd.expect"
@@ -61,11 +62,11 @@ class RemoteCmd:
         # prepare
         params = cls.__prepare(host_name, host_address)
             # raise error if exception found
-        cmd_fd = os.popen('{!s} "{!s}" "{!s}" "{!s}"'.format(
-            EXPECT_SSH,
-            params['ssh_cmd'],
-            params['ssh_pswd'],
-            remote_cmd
+        cmd_fd = os.popen('{!s} {!s} {!s} {!s}'.format(
+            shellescape.quote(EXPECT_SSH),
+            shellescape.quote(params['ssh_cmd']),
+            shellescape.quote(params['ssh_pswd']),
+            shellescape.quote(remote_cmd)
         ))
         return cmd_fd.read()
         
