@@ -11,7 +11,8 @@ RUN sed -i s/http/ftp/ /etc/apt/sources.list \
     && apt-get update \
     && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-client-dev libgd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmysqlclient-dev libnagios-object-perl libnagios-plugin-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python-pip rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python \
         # there are some redundant packages here
-    &&  apt-get install -y python3 python3-pip expect
+    && apt-get install -y python3 python3-pip expect \
+    && pip3 install virtualenv
         # package for customized monitoring package
     
 # Part 2. Install nagios core 4.4.5 / plugin 2.3.1
@@ -71,8 +72,7 @@ RUN cd /tmp \
 COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
 COPY ./nagios_libexec/python /usr/local/nagios/libexec/python
 COPY ./requirements.txt /tmp/requirements.txt
-RUN pip3 install virtualenv \
-    && cd /usr/local/nagios/libexec \
+RUN cd /usr/local/nagios/libexec \
     && virtualenv -p python3 pybox \
     && ./pybox/bin/pip3 install -r /tmp/requirements.txt
 
