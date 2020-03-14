@@ -68,9 +68,9 @@ RUN cd /tmp \
     && make install
     
 # Part 3. Setup customized monitor package of shell, python
-COPY ./shell /usr/local/nagios/libexec/shell
+COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
+COPY ./nagios_libexec/python /usr/local/nagios/libexec/python
 COPY ./requirements.txt /tmp/requirements.txt
-COPY ./python /usr/local/nagios/libexec/python
 RUN pip3 install virtualenv \
     && cd /usr/local/nagios/libexec \
     && virtualenv -p python3 pybox \
