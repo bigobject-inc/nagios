@@ -85,7 +85,7 @@ def main():
             if diff_seconds < 0 or diff_seconds > expire_minute*60:
                 # append error if expired
                 errors.append(
-                    "topic:{!s} partiton:{!s} expired by {!s} minutes, alert at {!s} minutes "\
+                    "topic:{!s} partiton:{!s} expired by {!s} minutes, alert if >= {!s} minutes "\
                     .format( kafka_topic, partnum, diff_minute, expire_minute )
                 )
             

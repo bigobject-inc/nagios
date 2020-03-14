@@ -70,7 +70,7 @@ def check_row(row, expire_minute):
     diff_minute = int(diff_seconds/60)
     threshold_seconds = 60*expire_minute
     if diff_seconds >= threshold_seconds:
-        errors.append("data expired by {!s} minutes (threshold {!s} minute)" \
+        errors.append("data expired by {!s} minutes (alert if >= {!s} minute)" \
             .format(diff_minute, expire_minute)
         )
         
