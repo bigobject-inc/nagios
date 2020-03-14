@@ -30,11 +30,15 @@ def main():
     
     # setup Kafka consumer connection
     kafka_server = "{:s}:{:s}".format(kafka_host,kafka_port)
-    kf_consumer = KafkaConsumer(
-        group_id=KAFKA_CONSUMER,
-        bootstrap_servers=kafka_server,
-        auto_offset_reset='latest'
-    )
+    try:
+        kf_consumer = KafkaConsumer(
+            group_id=KAFKA_CONSUMER,
+            bootstrap_servers=kafka_server,
+            auto_offset_reset='latest'
+        )
+    except Exception as e:
+        print("Kafka connection error: {!s}".format(e))
+        sys.exit(NAGIOS_WARNING)
 
     # get offset of all partitons
     partnum_offset = {}
@@ -49,7 +53,8 @@ def main():
         record_fd = open(log_file, 'w+', encoding='utf-8')
         fcntl.flock(record_fd, fcntl.LOCK_EX )
     except Exception as e:
-        print('Error when fetch record file')
+        print('Error when fetch record file at {!s}: {!s}'.format(log_file, e))
+        sys.exit(NAGIOS_WARNING)
     
     record_txt = record_fd.read()
     record = json.loads(record_txt) if len(record_txt) else {}
