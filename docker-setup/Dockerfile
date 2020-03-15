@@ -82,7 +82,8 @@ RUN apt-get clean \
     && rm -rf /tmp/*
     
 # Part 5. startup script
-ENTRYPOINT chown -R nagios:nagios /usr/local/nagios/libexec/python \
+ENTRYPOINT ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
+    && chown -R nagios:nagios /usr/local/nagios/libexec/python \
     && chown -R nagios:nagios /usr/local/nagios/libexec/shell \
     && chown -R nagios:nagios /opt/ssh && chmod 0400 /opt/ssh/*.pem  \
     && service apache2 restart \
