@@ -12,6 +12,7 @@ services:
         ports:
             - "5407:80"
         environment:
+            - TZ=Asia/Taipei
             - NAGIOS_PSWD=nagios
         working_dir: /opt
         stdin_open: true
