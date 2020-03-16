@@ -83,7 +83,6 @@ RUN apt-get clean \
 # Part 5. startup script
 ENTRYPOINT ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && chown -R nagios:nagios /opt/ssh \
-    && chmod 0400 /opt/ssh/*.pem  \
     && service apache2 restart \
     && service nagios restart \
     && htpasswd -cb /usr/local/nagios/etc/htpasswd.users nagiosadmin ${NAGIOS_PSWD:-nagios} \
