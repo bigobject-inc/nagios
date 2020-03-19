@@ -17,7 +17,7 @@ def main():
     host = args[1]
     port = int(args[2])
     db = args[3]
-    cluster_num = int(args[4])
+    alert_num = int(args[4])
     
     # setup connection and query
     bo_client = BigObject.connect(host, port, db)
@@ -31,11 +31,10 @@ def main():
         
     # verify query result with desired value
     qr_cluster_num = sum([ item['result'] for item in rows ])
-    if qr_cluster_num != cluster_num:
-        print("{!s} cluster found".format(qr_cluster_num))
+    print("{!s} found, alert if < {!s}".format(qr_cluster_num, alert_num))
+    if qr_cluster_num < alert_num:
         sys.exit(NAGIOS_WARNING)
     
-    print('OK')
     sys.exit(NAGIOS_OK)
     
 # : def main

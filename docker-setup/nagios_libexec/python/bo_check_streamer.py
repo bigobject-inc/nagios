@@ -67,9 +67,12 @@ def check_row(row, expire_minute):
     # check timestamp of last row
     time_diff = row['ts_now'] - row['ts_row']
     diff_seconds = time_diff.total_seconds()
+    diff_minute = int(diff_seconds/60)
     threshold_seconds = 60*expire_minute
     if diff_seconds >= threshold_seconds:
-        errors.append("timestamp expired {!s} seconds (threshold {!s})".format(diff_seconds, threshold_seconds))
+        errors.append("data expired by {!s} minutes (alert if >= {!s} minute)" \
+            .format(diff_minute, expire_minute)
+        )
         
     # check total
     total = row['total']
