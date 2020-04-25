@@ -29,40 +29,16 @@ def main():
     # Part I. check existence on table
     cursor = bo_client.query("SELECT COUNT(*) as result from (show tables) where Tables_in_bigobject = %s",[table])
     row = cursor.fetchone()
-    msg_stack += check_table(row, table)
+    if row is None:
+        print("Table {!s} not found".format(table))
+        sys.exit(NAGIOS_WARNING)
     
     # Part II. check row_expire time and total
     cursor = bo_client.query("SELECT timestamp as `ts_row`, utc_timestamp() as `ts_now` , total FROM %s last 1", [table])
     row = cursor.fetchone()
-    msg_stack += check_row(row, expire_minute)
-    
-    if len(msg_stack) >0 :
-        print(msg_stack)
+    if row is None:
+        print('no record found in table {!s}'.format(table))
         sys.exit(NAGIOS_WARNING)
-    
-    print("OK")
-    sys.exit(NAGIOS_OK)
-    
-# : def main
-
-def check_table(row, table):
-    """ check table existence """
-    errors = []
-    if row is None:
-        # table not found
-        errors.append("table not found: {!s}".format(table))
-    elif row['result'] is not 1:
-        errors.append("table: {!s} found, but count not 1".format(table))
-        
-    return errors
-# :def check_table
-    
-def check_row(row, expire_minute):
-    errors = []
-    if row is None:
-        # row not found
-        errors.append("last row not queried")
-        return errors
     
     # check timestamp of last row
     time_diff = row['ts_now'] - row['ts_row']
@@ -70,17 +46,23 @@ def check_row(row, expire_minute):
     diff_minute = int(diff_seconds/60)
     threshold_seconds = 60*expire_minute
     if diff_seconds >= threshold_seconds:
-        errors.append("data expired by {!s} minutes (alert if >= {!s} minute)" \
+        print("data expired by {!s} minutes (alert if >= {!s} minute)" \
             .format(diff_minute, expire_minute)
         )
-        
+        sys.exit(NAGIOS_WARNING)
+
     # check total
     total = row['total']
     if not (total > 0):
-        errors.append("total error: {!s} found".format(total))
+        print("total error: {!s} found".format(total))
+        sys.exit(NAGIOS_WARNING)
     
-    return errors
-# :def check_row
+    print("data expired by {!s} minutes (alert if >= {!s} minute)" \
+        .format(diff_minute, expire_minute)
+    )
+    sys.exit(NAGIOS_OK)
+    
+# : def main
 
 if __name__ == '__main__':
     try:
