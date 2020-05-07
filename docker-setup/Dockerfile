@@ -1,7 +1,18 @@
 FROM ubuntu:16.04
 
 # Part 1. install required packages
-RUN sed -i s/http/ftp/ /etc/apt/sources.list \
+RUN    echo "###### Ubuntu Main Repos" > /etc/apt/sources.list \
+    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "###### Ubuntu Update Repos" >> /etc/apt/sources.list \
+    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
+    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list \
     # fix apt repository failure
     
     && echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections \  
