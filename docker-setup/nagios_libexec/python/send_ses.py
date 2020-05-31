@@ -6,13 +6,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 # python send_ses.py mail_to subject
-SENDER = Env.get('SES_SENDER_EMAIL')
-SENDERNAME = Env.get('SES_SENDER_NAME')
+SENDER = Env.get('SENDER_EMAIL')
+SENDERNAME = Env.get('SENDER_NAME')
 
-SMTP_HOST = Env.get('SES_SMTP_HOST') 
-SMTP_PORT = Env.get('SES_SMTP_PORT') 
-SMTP_USER=Env.get('SES_SMTP_USER')
-SMTP_PSWD=Env.get('SES_SMTP_PSWD')
+SMTP_HOST = Env.get('SMTP_HOST')
+SMTP_PORT = Env.get('SMTP_PORT')
+SMTP_USER=Env.get('SMTP_USER')
+SMTP_PSWD=Env.get('SMTP_PSWD')
 
 def main(argv):
     # setup input
