@@ -1,8 +1,8 @@
 version: "3"
 services:
-    bo_watch:
-        image: bigobject/watch:$VERSION
-        container_name: bo_watch
+    bo_nagios:
+        image: bigobject/nagios:$VERSION
+        container_name: bo_nagios
         volumes: 
             - $PROJECT_DIR/share/opt:/opt
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
