@@ -5,7 +5,7 @@ import email.utils
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# python send_ses.py mail_to subject
+# python send_smtp.py mail_to subject
 SENDER = Env.get('SENDER_EMAIL')
 SENDERNAME = Env.get('SENDER_NAME')
 
