@@ -1,21 +1,22 @@
 FROM ubuntu:16.04
 
+# Part 0. use apt repository in Taiwan
+#   if apt installation fails, use the following
+# RUN echo "###### Ubuntu Main Repos" > /etc/apt/sources.list \
+#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "###### Ubuntu Update Repos" >> /etc/apt/sources.list \
+#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
+#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list
+
 # Part 1. install required packages
-RUN    echo "###### Ubuntu Main Repos" > /etc/apt/sources.list \
-    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "###### Ubuntu Update Repos" >> /etc/apt/sources.list \
-    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
-    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list \
-    # fix apt repository failure
-    
-    && echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections \  
+RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections \  
     && echo postfix postfix/mynetworks string "127.0.0.0/8" | debconf-set-selections \
     && echo postfix postfix/mailname string nagios.example.com | debconf-set-selections \
     && export DEBIAN_FRONTEND="noninteractive" \
@@ -23,11 +24,14 @@ RUN    echo "###### Ubuntu Main Repos" > /etc/apt/sources.list \
     && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-client-dev libgd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmysqlclient-dev libnagios-object-perl libnagios-plugin-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python-pip rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python \
         # there are some redundant packages here
     && apt-get install -y python3 python3-pip expect \
-    && pip3 install virtualenv
+    && pip3 install virtualenv \
         # package for customized monitoring package
+    && apt-get clean \
+    && rm -Rf /var/lib/apt/lists/* 
     
 # Part 2. Install nagios core 4.4.5 / plugin 2.3.1
 RUN cd /tmp \
+    && apt-get update \
     #### nagios core ####
     && wget -O nagioscore.tar.gz https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.5.tar.gz \
     && tar xzf nagioscore.tar.gz \
@@ -74,9 +78,20 @@ RUN cd /tmp \
     # create folder for customized configuration
     && echo "cfg_dir=/usr/local/nagios/etc/custom" >> /usr/local/nagios/etc/nagios.cfg \
     && mkdir -p /usr/local/nagios/etc/custom \
-    && chown nagios:nagios /usr/local/nagios/etc/custom
+    && chown nagios:nagios /usr/local/nagios/etc/custom \
+    && apt-get clean \
+    && rm -Rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* 
     
-# Part 3. Setup customized monitor package of shell, python
+# Part 3. Provide minimal configuration into image
+COPY ./share/opt /opt
+COPY ./nagios-template  /opt
+    ### template file for /opt    
+COPY ./share/nagios_var /usr/local/nagios/var
+COPY ./share/nagios_etc /usr/local/nagios/etc/custom
+    ### template file for nagios configuration
+
+# Part 4. Setup customized monitor package of shell, python    
 COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
 COPY ./nagios_libexec/python /usr/local/nagios/libexec/python
 COPY ./requirements.txt /tmp/requirements.txt
@@ -86,11 +101,6 @@ RUN chown -R nagios:nagios /usr/local/nagios/libexec/python \
     && virtualenv -p python3 pybox \
     && ./pybox/bin/pip3 install -r /tmp/requirements.txt
 
-# Part 4. Remove cache
-RUN apt-get clean \
-    && rm -Rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/*
-    
 # Part 5. startup script
 ENTRYPOINT ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && chown -R nagios:nagios /opt/ssh \
