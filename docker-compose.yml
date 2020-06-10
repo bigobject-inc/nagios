@@ -6,8 +6,8 @@ services:
             - $PROJECT_DIR/share/opt:/opt
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
             - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
-        extra_hosts:
-            - "hostName:IPAddress"
+        #extra_hosts:
+        #    - "$hostName:$IPAddress"
         ports:
             - "5407:80"
         environment:
