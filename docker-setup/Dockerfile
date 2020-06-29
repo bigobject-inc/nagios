@@ -89,7 +89,9 @@ COPY ./nagios-template  /opt
     ### template file for /opt    
 COPY ./share/nagios_var /usr/local/nagios/var
 COPY ./share/nagios_etc /usr/local/nagios/etc/custom
-    ### template file for nagios configuration
+    ### template file for nagios 
+COPY ./utility /root/utility
+    ### utility for HostOS
 
 # Part 4. Setup customized monitor package of shell, python    
 COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
