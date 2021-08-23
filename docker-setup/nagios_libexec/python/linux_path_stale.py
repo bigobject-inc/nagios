@@ -44,12 +44,12 @@ def main():
     file_mts = int(file_mts)
     stale_sec = now_ts - file_mts
     stale_min = int( stale_sec / 60 )
-    print("{!s} modified {!s} minutes ago, alert if modified larger than {!s} minutes".format(
+    print("{!s} modified {!s} minutes ago, alert if modified longer than {!s} minutes".format(
         file_path,
         stale_min,
         alert_at
     ) )
-    if stale_min < alert_at:
+    if stale_min > alert_at:
         sys.exit(NAGIOS_WARNING)
     
     sys.exit(NAGIOS_OK)
