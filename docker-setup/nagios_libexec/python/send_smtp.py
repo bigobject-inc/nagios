@@ -33,20 +33,33 @@ def main(argv):
     try:  
         server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
         server.ehlo()
+    except Exception as e:
+        # Display an error message if something goes wrong.
+        raise Exception("Error: ", e)
+
+    try:
+        # stmplib docs recommend calling ehlo() before & after starttls()
         server.starttls()
-        
-        #stmplib docs recommend calling ehlo() before & after starttls()
         server.ehlo()
+    except:
+        # some SMTP ignore TLS
+        pass
+
+    try:
         server.login(SMTP_USER, SMTP_PSWD)
+    except:
+        # some SMTP ignore login
+        pass
+
+
+    try:
         server.sendmail(SENDER, mail_to, msg.as_string())
         server.close()
-    # Display an error message if something goes wrong.
     except Exception as e:
-        print ("Error: ", e)
+        # Display an error message if something goes wrong.
+        raise Exception("Error: ", e)
     else:
         print ("Email sent!")
-    
-    
     
 # :def main
 
