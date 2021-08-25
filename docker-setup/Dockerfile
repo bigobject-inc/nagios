@@ -1,19 +1,4 @@
-FROM ubuntu:16.04
-
-# Part 0. use apt repository in Taiwan
-#   if apt installation fails, use the following
-# RUN echo "###### Ubuntu Main Repos" > /etc/apt/sources.list \
-#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "###### Ubuntu Update Repos" >> /etc/apt/sources.list \
-#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse " >> /etc/apt/sources.list \
-#    && echo "deb-src http://tw.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse " >> /etc/apt/sources.list
+FROM ubuntu:20.04
 
 # Part 1. install required packages
 RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections \  
@@ -21,7 +6,7 @@ RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set
     && echo postfix postfix/mailname string nagios.example.com | debconf-set-selections \
     && export DEBIAN_FRONTEND="noninteractive" \
     && apt-get update \
-    && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-client-dev libgd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmysqlclient-dev libnagios-object-perl libnagios-plugin-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python-pip rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python \
+    && apt-get install -y apache2 apache2-utils autoconf automake bc bsd-mailx build-essential dnsutils fping gettext git gperf iputils-ping jq libapache2-mod-php libcache-memcached-perl libcgi-pm-perl libdbd-mysql-perl libdbi-dev libdbi-perl libfreeradius-dev libgdchart-gd2-xpm-dev libgd-gd2-perl libjson-perl libldap2-dev libmonitoring-plugin-perl libmysqlclient-dev libnagios-object-perl libnet-snmp-perl libnet-snmp-perl libnet-tftp-perl libnet-xmpp-perl libpq-dev libradsec-dev libredis-perl librrds-perl libssl-dev libswitch-perl libwww-perl m4 netcat parallel php-cli php-gd postfix python3-pip python3-nagiosplugin rsyslog runit smbclient snmp snmpd snmp-mibs-downloader unzip python \
         # there are some redundant packages here
     && apt-get install -y python3 python3-pip expect \
     && pip3 install virtualenv \
@@ -101,7 +86,8 @@ RUN chown -R nagios:nagios /usr/local/nagios/libexec/python \
     && chown -R nagios:nagios /usr/local/nagios/libexec/shell \
     && cd /usr/local/nagios/libexec \
     && virtualenv -p python3 pybox \
-    && ./pybox/bin/pip3 install -r /tmp/requirements.txt
+    && ./pybox/bin/pip3 install -r /tmp/requirements.txt \
+    && rm -rf /tmp/requirements.txt
 
 # Part 5. startup script
 ENTRYPOINT ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
