@@ -2,7 +2,7 @@ version: "3"
 services:
     bo_watch:
         image: bigobject/nagios:$VERSION
-        volumes: 
+        volumes:
             - $PROJECT_DIR/share/opt:/opt
             - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
             - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
@@ -17,4 +17,15 @@ services:
         stdin_open: true
         tty: true
         command: bash
+        restart: unless-stopped
+    nagios_api:
+        image: bigobject/nagios-api:$VERSION
+        volumes:
+            - $PROJECT_DIR/share/nagios_var:/nagios/var:ro
+        ports:
+            - "5408:8000"
+        working_dir: /opt
+        stdin_open: true
+        tty: true
+        command: nagios-api -p 8000 -s /nagios/var/status.dat
         restart: unless-stopped
