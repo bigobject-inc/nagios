@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 # Part 1. install required packages
-RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections \  
+RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections \
     && echo postfix postfix/mynetworks string "127.0.0.0/8" | debconf-set-selections \
     && echo postfix postfix/mailname string nagios.example.com | debconf-set-selections \
     && export DEBIAN_FRONTEND="noninteractive" \
@@ -12,8 +12,8 @@ RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set
     && pip3 install virtualenv \
         # package for customized monitoring package
     && apt-get clean \
-    && rm -Rf /var/lib/apt/lists/* 
-    
+    && rm -Rf /var/lib/apt/lists/*
+
 # Part 2. Install nagios core 4.4.5 / plugin 2.3.1
 RUN cd /tmp \
     && apt-get update \
@@ -21,7 +21,7 @@ RUN cd /tmp \
     && wget -O nagioscore.tar.gz https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.5.tar.gz \
     && tar xzf nagioscore.tar.gz \
     && cd /tmp/nagioscore-nagios-4.4.5/ \
-    && ./configure \ 
+    && ./configure \
         --with-httpd-conf=/etc/apache2/sites-enabled \
         --with-checkresult-dir=/usr/local/nagios/checkresult \
             # modify some configuration during installation
@@ -36,7 +36,7 @@ RUN cd /tmp \
     && make install-webconf \
     && a2enmod rewrite \
     && a2enmod cgi \
-    
+
     #### nagios plugin ####
     && apt-get install -y autoconf gcc libc6 libmcrypt-dev make libssl-dev wget bc gawk dc build-essential snmp libnet-snmp-perl gettext \
     && cd /tmp \
@@ -47,38 +47,38 @@ RUN cd /tmp \
     && ./configure \
     && make \
     && make install \
-    
+
     ### Customization on configuration ####
     && echo "# CUSTOMIZATION" >> /usr/local/nagios/etc/nagios.cfg \
-    
+
     # command and query socket
     && sed -i s/command_file=/#command_file=/  /usr/local/nagios/etc/nagios.cfg \
     && echo "command_file=/usr/local/nagios/pipe/nagios.cmd" >> /usr/local/nagios/etc/nagios.cfg \
     && echo "query_socket=/usr/local/nagios/pipe/nagios.qh" >> /usr/local/nagios/etc/nagios.cfg \
     && mv /usr/local/nagios/var/rw /usr/local/nagios/pipe \
-    
+
     # disable localhost.cfg
     && sed -i s/cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/#cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/ /usr/local/nagios/etc/nagios.cfg \
-    
+
     # create folder for customized configuration
     && echo "cfg_dir=/usr/local/nagios/etc/custom" >> /usr/local/nagios/etc/nagios.cfg \
     && mkdir -p /usr/local/nagios/etc/custom \
     && chown nagios:nagios /usr/local/nagios/etc/custom \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/* 
-    
+    && rm -rf /tmp/*
+
 # Part 3. Provide minimal configuration into image
 COPY ./share/opt /opt
 COPY ./nagios-template  /opt
-    ### template file for /opt    
+    ### template file for /opt
 COPY ./share/nagios_var /usr/local/nagios/var
 COPY ./share/nagios_etc /usr/local/nagios/etc/custom
-    ### template file for nagios 
+    ### template file for nagios
 COPY ./utility /root/utility
     ### utility for HostOS
 
-# Part 4. Setup customized monitor package of shell, python    
+# Part 4. Setup customized monitor package of shell, python
 COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
 COPY ./nagios_libexec/python /usr/local/nagios/libexec/python
 COPY ./requirements.txt /tmp/requirements.txt
