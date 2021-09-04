@@ -31,20 +31,15 @@ class Fernet:
         return FernetLib.generate_key().decode()
 
     @classmethod
-    def validateOptEnv(cls):
-        """ validate fernet cipher in opt/.env """
+    def getOptEnv(cls):
+        """ get fernet cipher in opt/.env """
         key = Env.get(cls.ENV_KEY, True)
         if key is None or len(key) == 0:
         # key not set
             raise Exception("FERNET_KEY not set in .env")
         # validate: raise Exception if error
-        fernet = Fernet(key)
-        return True
+        return cls(key)
 
-    @classmethod
-    def getOptEnv(cls):
-        """ get fernet cipher in opt/.env """
-        pass
 
     def __init__(self, key:str):
         self.__instance = FernetLib(key)

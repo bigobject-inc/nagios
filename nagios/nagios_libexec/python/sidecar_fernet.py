@@ -9,14 +9,12 @@ def main():
 @click.command('verify', help='verify a fernet key setup or not')
 def verify_cmd():
     try:
-        result = Fernet.validateOptEnv()
+        result = Fernet.getOptEnv()
     except Exception as e:
         print("validation error on fernet: ", e)
         return
 
-    if result == True:
-        print("eveything is OK")
-
+    print("everything is OK")
     return
 
 
