@@ -109,10 +109,10 @@ class BigObject:
     __config = {}
 
     @classmethod
-    def connect(cls, host, port, db, name='default'):
+    def connect(cls, host, port, db, user, pswd, name='default'):
         # connection not initialized
         if name not in cls.__config:
-            cls.__config[name] = {'host':host, 'port':port, 'db':db}
+            cls.__config[name] = {'host':host, 'port':port, 'db':db, 'user': user, 'password':pswd}
             cls.__setupClient(name)
 
         # reconnect if connection initialized, but not alive
@@ -130,6 +130,8 @@ class BigObject:
             host=params['host'],
             port=params['port'],
             database=params['db'],
+            user=params['user'],
+            password=params['password'],
             connection_timeout=600
         )
     # :def __setupClient

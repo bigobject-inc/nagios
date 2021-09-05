@@ -11,10 +11,10 @@ def verify_cmd():
     try:
         result = Fernet.getOptEnv()
     except Exception as e:
-        print("validation error on fernet: ", e)
+        click.echo("validation error on fernet: ", e)
         return
 
-    print("everything is OK")
+    click.echo("everything is OK")
     return
 
 
@@ -28,19 +28,25 @@ def generate_cmd():
 
 @click.command('encrypt', help='encryption')
 def encrypt_cmd():
-    key = click.prompt('fernet key', type=str)
-    plain_txt = click.prompt('plain text', type=str)
+    try:
+        fernet = Fernet.getOptEnv()
+    except Exception as e:
+        click.echo("Fernet setup error, more error here: ", e)
+        return
 
-    fernet = Fernet( key )
+    plain_txt = click.prompt('plain text', type=str)
     ciphered_txt = fernet.encrypt(plain_txt)
     click.echo("ciphered text->{!s}".format(ciphered_txt))
 
 @click.command('decrypt', help='decryption')
 def decrypt_cmd():
-    key = click.prompt('fernet key', type=str)
-    cipher_txt = click.prompt('ciphered text', type=str)
-    fernet = Fernet( key )
+    try:
+        fernet = Fernet.getOptEnv()
+    except Exception as e:
+        click.echo("Fernet setup error, more error here: ", e)
+        return
 
+    cipher_txt = click.prompt('ciphered text', type=str)
     plain_txt = fernet.decrypt(cipher_txt)
     click.echo("plain text->{!s}".format(plain_txt))
 
