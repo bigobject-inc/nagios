@@ -9,7 +9,7 @@ NAGIOS_WARNING = 1
 NAGIOS_CRITICAL = 2
 NAGIOS_UNKNOWN = 3
 
-@click.command(help='check BO license time')
+@click.command(help='check BO 3306 connection')
 @click.argument('host')
 @click.argument('port')
 @click.argument('db')
