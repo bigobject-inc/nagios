@@ -1,5 +1,7 @@
 import sys
+import click
 from kit import BigObject
+from kit import Fernet
 
 # python3 ... HOST PORT DB TABLE EXPIRE_MIN TIMESTAMP_COLUMN
 NAGIOS_OK = 0
@@ -7,25 +9,27 @@ NAGIOS_WARNING = 1
 NAGIOS_CRITICAL = 2
 NAGIOS_UNKNOWN = 3
 
-def main():
+@click.command(help='check BO streamer')
+@click.argument('host')
+@click.argument('port')
+@click.argument('db')
+@click.argument('table')
+@click.argument('expire_minute', type=int)
+@click.argument('ts_column')
+@click.option('--user', default='root')
+@click.option('--password', default='')
+def main(host, port, db, table, expire_minute, ts_column, user, password):
+    """ check bo streamer with an expiring threshold """
     # message stack
     msg_stack = []
 
-    # verify input
-    args = sys.argv
-
-    if len(args) < 7:
-        raise Exception('number of arguments not enough')
-
-    host = args[1]
-    port = int(args[2])
-    db = args[3]
-    table = args[4]
-    expire_minute = int(args[5])
-    ts_column = args[6]
+    # decipher password
+    if len(password) != 0:
+        fernet = Fernet.getOptEnv()
+        password = fernet.decrypt(password)
 
     # setup connection
-    bo_client = BigObject.connect(host, port, db)
+    bo_client = BigObject.connect(host, port, db, user, password)
 
     # Part I. check existence on table
     cursor = bo_client.query("SELECT COUNT(*) as result from (show tables) where Tables_in_bigobject = %s",[table])
