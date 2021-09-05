@@ -78,9 +78,10 @@ COPY ./share/nagios_etc /usr/local/nagios/etc/custom
 COPY ./utility /root/utility
     ### utility for HostOS
 
-# Part 4. Setup customized monitor package of shell, python
+# Part 4. Setup customized monitor package of shell, python, sidecar
 COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
 COPY ./nagios_libexec/python /usr/local/nagios/libexec/python
+COPY ./nagios_sidecar /usr/local/nagios/sidecar
 COPY ./requirements.txt /tmp/requirements.txt
 RUN chown -R nagios:nagios /usr/local/nagios/libexec/python \
     && chown -R nagios:nagios /usr/local/nagios/libexec/shell \
