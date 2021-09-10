@@ -68,11 +68,16 @@ class RemoteCmd:
         except Exception as e:
             raise Exception("JSON parse error, exception {!s}".format(e))
 
+        is_encrypted = data.get('is_encrypted', False)
         ssh_user = data.get('user', '')
         ssh_pswd = data.get('password', '')
         ssh_key = data.get('key', '')
         key_file = "{!s}/{!s}".format(SSH_DIR,ssh_key)
 
+        if is_encrypted and len(ssh_pswd)>0:
+            # decrypt password if encrypted
+            fernet = Fernet.getOptEnv()
+            ssh_pswd = fernet.decrypt(ssh_pswd)
         if len(ssh_user)==0:
             raise Exception("ssh login user not found in JSON")
         if len(ssh_key) and os.path.isfile(key_file) == False:
