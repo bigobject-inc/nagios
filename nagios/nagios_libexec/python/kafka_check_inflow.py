@@ -55,12 +55,13 @@ def main():
 
     # get record in storage
     try:
-        record_fd = open(log_file, 'r+', encoding='utf-8')
+        record_fd = open(log_file, 'a+', encoding='utf-8')
         fcntl.flock(record_fd, fcntl.LOCK_EX )
     except Exception as e:
         print('Error when fetch record file at {!s}: {!s}'.format(log_file, e))
         sys.exit(NAGIOS_WARNING)
 
+    record_fd.seek(0)
     record_txt = record_fd.read()
     record = json.loads(record_txt) if len(record_txt) else {}
 
