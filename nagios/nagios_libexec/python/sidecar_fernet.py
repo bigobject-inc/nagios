@@ -24,7 +24,7 @@ def generate_cmd():
     click.echo("====key content below====")
     click.echo("{!s}".format(key))
     click.echo("====key content above====\n")
-    click.echo("update FERENET_KEY in your .env file\n")
+    click.echo("update FERNET_KEY in your .env file\n")
 
 @click.command('encrypt', help='encryption')
 def encrypt_cmd():
