@@ -3,14 +3,23 @@ FROM ubuntu:20.04
 ### Part I. Nagios
 ARG DEBIAN_FRONTEND="noninteractive"
 
+# install newer apache2 due to security issue CVE-2021-44224, CVE-2021-44790
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:ondrej/apache2 && \
+    apt-get update && \
+    apt-get install -y apache2=2.4.52-2+ubuntu20.04.1+deb.sury.org+1 && \
+    apt-get clean &&  \
+    rm -Rf /var/lib/apt/lists/*
+
 # install required packages
 RUN echo postfix postfix/main_mailer_type string "'Internet Site'" | debconf-set-selections &&  \
     echo postfix postfix/mynetworks string "127.0.0.0/8" | debconf-set-selections &&  \
     echo postfix postfix/mailname string nagios.example.com | debconf-set-selections &&  \
     apt-get update && \
     apt-get install -y \
-      apache2 \
-      apache2-utils \
+      # apache2 \
+      # apache2-utils \
       autoconf \
       automake \
       bc \
