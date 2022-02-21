@@ -8,7 +8,6 @@ NAGIOS_WARNING = 1
 NAGIOS_CRITICAL = 2
 NAGIOS_UNKNOWN = 3
 
-
 def main():
     # verify input
     args = sys.argv
@@ -32,11 +31,15 @@ def main():
         sys.exit(NAGIOS_WARNING)
 
     # parse final desired information
-    line = msg_stack[-3]
-    date_expire = line.split(":")[-1].strip()
+    try:
+        line = msg_stack[-3]
+        date_expire = line.split(":")[-1].strip()
 
-    line = msg_stack[-2]
-    date_now = line.strip()
+        line = msg_stack[-2]
+        date_now = line.strip()
+    except Exception as e:
+        print("remote command response malformat {!s}".format(msg_stack))
+        sys.exit(NAGIOS_WARNING)
 
     # health check based on result
     if date_expire == "never":
@@ -44,8 +47,13 @@ def main():
         print("password has no expiration date")
         sys.exit(NAGIOS_OK)
 
-    dt_now = DateTime.strptime(date_now, "%Y-%m-%d")
-    dt_exp = DateTime.strptime(date_expire, "%Y-%m-%d")
+    try:
+        dt_now = DateTime.strptime(date_now, "%Y-%m-%d")
+        dt_exp = DateTime.strptime(date_expire, "%Y-%m-%d")
+    except Exception as e:
+        print("remote command response malformat {!s}".format(msg_stack))
+        sys.exit(NAGIOS_WARNING)
+
 
     time_diff = dt_exp - dt_now
     if time_diff.total_seconds() <= 0:
