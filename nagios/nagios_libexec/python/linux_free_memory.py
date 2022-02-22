@@ -40,10 +40,11 @@ def main():
         print("remote command response malformat {!s}".format(msg_stack))
         sys.exit(NAGIOS_WARNING)
 
+    result = []
     used_r = int(100*used/total)
-    print( "total: {!s}MB, used: {!s}MB({!s}%), alert if >={!s}%".format( total, used, used_r, alert_at ) )
-    for line in msg_stack[start:-4]:
-        print(line)
+    result.append("total: {!s}MB, used: {!s}MB({!s}%), alert if >={!s}%".format( total, used, used_r, alert_at ))
+    result += [line for line in msg_stack[start:-4]]
+    print("\n".join(result))
     if used_r >= alert_at:
         sys.exit(NAGIOS_WARNING)
 
