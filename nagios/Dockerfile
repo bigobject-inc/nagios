@@ -90,6 +90,7 @@ RUN cd /tmp && \
         # modify some configuration during installation
     make all && \
     make install-groups-users && \
+    usermod -a -G nagios www-data && \
     make install && \
     make install-daemoninit && \
     make install-commandmode && \
