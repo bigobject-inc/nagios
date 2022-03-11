@@ -19,7 +19,7 @@ def main():
     host_name = args[1]
     host_address = args[2]
     alert_at = int(args[3])
-    remote_cmd = "chage -li \$(whoami) | grep 'Password expires' && date '+%Y-%m-%d'"
+    remote_cmd = "chage -l \$(whoami) | grep 'Password expires' && date '+%Y-%m-%d'"
 
     # send remote command via SSH
     res = RemoteCmd.commit(host_name, host_address, remote_cmd)
@@ -49,11 +49,10 @@ def main():
 
     try:
         dt_now = DateTime.strptime(date_now, "%Y-%m-%d")
-        dt_exp = DateTime.strptime(date_expire, "%Y-%m-%d")
+        dt_exp = DateTime.strptime(date_expire, "%b %d, %Y")
     except Exception as e:
         print("remote command response malformat {!s}".format(msg_stack))
         sys.exit(NAGIOS_WARNING)
-
 
     time_diff = dt_exp - dt_now
     if time_diff.total_seconds() <= 0:
