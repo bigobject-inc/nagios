@@ -2,8 +2,10 @@
 --------
 
 ## 目錄結構：
-  - docker-setup: 擺放docker安裝相關的模板
-  - share: 擺放與docker共用的volume
+  - nagios: nagios server
+    - nagios的核心都在這裡
+  - nagios-api: nagios-api server
+    - nagios-api為輸出nagios的
 
 ## Image build指令
 ### nagios
