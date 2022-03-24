@@ -140,10 +140,14 @@ RUN echo "##### CUSTOMIZATION ####" >> /usr/local/nagios/etc/nagios.cfg && \
     mv /usr/local/nagios/var/rw /usr/local/nagios/pipe \
     # disable localhost.cfg
     && sed -i s/cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/#cfg_file=\\/usr\\/local\\/nagios\\/etc\\/objects\\/localhost.cfg/ /usr/local/nagios/etc/nagios.cfg \
-    # create folder for customized configuration
+    # create folder holding etc
+    #       built-in: built-in config like cmd
+    #       custom: cfg for user freely hooked
+    && echo "cfg_dir=/usr/local/nagios/etc/built-in" >> /usr/local/nagios/etc/nagios.cfg \
     && echo "cfg_dir=/usr/local/nagios/etc/custom" >> /usr/local/nagios/etc/nagios.cfg \
+    && mkdir -p /usr/local/nagios/etc/built-in \
     && mkdir -p /usr/local/nagios/etc/custom \
-    && chown nagios:nagios /usr/local/nagios/etc/custom
+    && chown nagios:nagios /usr/local/nagios/etc
 
 # setup runtime
 RUN apt-get update && \
@@ -158,8 +162,9 @@ RUN apt-get update && \
 
 # minimal configuration
 COPY ./share/opt /opt
-COPY ./nagios-template  /opt
+COPY ./nagios-template/opt  /opt
     ### template file for /opt
+COPY ./nagios-template/etc /usr/local/nagios/etc
 COPY ./share/nagios_var /usr/local/nagios/var
 COPY ./share/nagios_etc /usr/local/nagios/etc/custom
     ### template file for nagios
@@ -168,8 +173,7 @@ COPY ./share/nagios_etc /usr/local/nagios/etc/custom
 COPY ./utility /root/utility
 
 # monitor module
-COPY ./nagios_libexec/shell /usr/local/nagios/libexec/shell
-COPY ./nagios_libexec/python /usr/local/nagios/libexec/python
+COPY ./nagios_libexec /usr/local/nagios/libexec
 COPY ./nagios_sidecar /usr/local/nagios/sidecar
 COPY ./requirements.txt /tmp/requirements.txt
 RUN chown -R nagios:nagios /usr/local/nagios/libexec/python && \
