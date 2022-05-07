@@ -8,7 +8,7 @@ RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ondrej/apache2 && \
     apt-get update && \
-    apt-get install -y apache2=2.4.53-1+ubuntu20.04.1+deb.sury.org+1 && \
+    apt-get install -y apache2=2.4.53-3+ubuntu20.04.1+deb.sury.org+1 && \
     apt-get clean &&  \
     rm -Rf /var/lib/apt/lists/*
 
