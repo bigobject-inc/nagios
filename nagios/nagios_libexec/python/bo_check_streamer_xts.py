@@ -39,7 +39,7 @@ def main(host, port, db, table, expire_minute, ts_column, user, password):
         sys.exit(NAGIOS_WARNING)
 
     # Part II. check row_expire time and total
-    cursor = bo_client.query("SELECT `{!s}` as `ts_row`, utc_timestamp() as `ts_now` , total FROM %s last 1".format(ts_column), [table])
+    cursor = bo_client.query("SELECT `{!s}` as `ts_row`, now() as `ts_now` , total FROM %s last 1".format(ts_column), [table])
     row = cursor.fetchone()
     if row is None:
         print('no record found in table {!s}'.format(table))
