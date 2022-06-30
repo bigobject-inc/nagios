@@ -3,9 +3,9 @@ services:
     bo_watch:
         image: bigobject/nagios:$VERSION
         volumes:
-            - $PROJECT_DIR/share/opt:/opt
-            - $PROJECT_DIR/share/nagios_var:/usr/local/nagios/var
-            - $PROJECT_DIR/share/nagios_etc:/usr/local/nagios/etc/custom
+            - ./share/opt:/opt
+            - ./share/nagios_var:/usr/local/nagios/var
+            - ./share/nagios_etc:/usr/local/nagios/etc/custom
         #extra_hosts:
         #    - "$hostName:$IPAddress"
         ports:
@@ -13,6 +13,7 @@ services:
         environment:
             - TZ=Asia/Taipei
             - NAGIOS_PSWD=nagios
+            - HTTPS_ENABLED=0
         working_dir: /opt
         stdin_open: true
         tty: true
@@ -21,7 +22,7 @@ services:
     nagios_api:
         image: bigobject/nagios-api:$VERSION
         volumes:
-            - $PROJECT_DIR/share/nagios_var:/nagios/var:ro
+            - ./share/nagios_var:/nagios/var:ro
         ports:
             - "5408:8000"
         working_dir: /opt

@@ -14,6 +14,11 @@
     htpasswd -cb /usr/local/nagios/etc/htpasswd.users nagiosadmin ${NAGIOS_PSWD:-nagios}
     chown -R nagios:nagios /opt/ssh
 
+    # enable HTTPS if assigned
+    if [ "${HTTPS_ENABLED}" -eq 1 ]; then
+        a2enmod ssl
+    fi
+
     # start all relating services
     service apache2 restart
     service nagios restart
