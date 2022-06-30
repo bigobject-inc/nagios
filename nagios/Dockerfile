@@ -8,7 +8,7 @@ RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ondrej/apache2 && \
     apt-get update && \
-    apt-get install -y apache2=2.4.53-3+ubuntu20.04.1+deb.sury.org+1 && \
+    apt-get install -y apache2=2.4.54-1+ubuntu20.04.1+deb.sury.org+1 && \
     apt-get clean &&  \
     rm -Rf /var/lib/apt/lists/*
 
@@ -149,6 +149,9 @@ RUN echo "##### CUSTOMIZATION ####" >> /usr/local/nagios/etc/nagios.cfg && \
     && mkdir -p /usr/local/nagios/etc/custom \
     && chown nagios:nagios /usr/local/nagios/etc
 
+# apache2 configuration
+COPY ./apache2 /etc/apache2/sites-enabled
+
 # setup runtime
 RUN apt-get update && \
     apt-get install -y \
@@ -162,9 +165,9 @@ RUN apt-get update && \
 
 # minimal configuration
 COPY ./share/opt /opt
-COPY ./nagios-template/opt  /opt
+COPY ./minimal-config/opt  /opt
     ### template file for /opt
-COPY ./nagios-template/etc /usr/local/nagios/etc
+COPY ./minimal-config/etc /usr/local/nagios/etc
 COPY ./share/nagios_var /usr/local/nagios/var
 COPY ./share/nagios_etc /usr/local/nagios/etc/custom
     ### template file for nagios
